@@ -1,3 +1,4 @@
+# coding: utf-8
 import pandas as pd #for manipulating data 
 import collections
 
@@ -43,3 +44,28 @@ def prepare(file):
 def split_non_det(data):
 	"""TODO"""
 	return 
+
+
+"""
+a integrer je conaissais pas dict reader,j'ai peut etre utiliser un marteau piqueur
+import csv
+
+
+# In[25]:
+
+
+trainfile = open("train.csv", "r")
+testfile = open("test.csv", "r")
+
+
+# In[29]:
+
+
+train = csv.DictReader(trainfile)
+test = csv.DictReader(testfile)
+
+
+# In[28]:
+
+p
+"""
