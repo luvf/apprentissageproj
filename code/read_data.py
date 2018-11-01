@@ -15,12 +15,27 @@ def get_features(data):
 
 def get_labels(data):
 	labels =  data[:,-1]
-	for i in range(len(labels)):
-		labels[i] = int(labels[i][-1])
+	#for i in range(len(labels)):
+	#	labels[i] = int(labels[i][-1])
 	return labels
 
-def write_output(data):
-	labesl =["Class_1","Class_2","Class_3","Class_4","Class_5","Class_6","Class_7","Class_8","Class_9"]
+def one_hot(i,lab):
+	ret = np.zeros(10, dtype = int)
+	ret[0]=i+1
+	ret[int(lab[-1])]=1
+	return ret
+
+
+import csv
+def write_output(labs):
+	with open('out.csv', 'w', newline='') as f:
+		writer = csv.writer(f)
+		labels =["id","Class_1","Class_2","Class_3","Class_4","Class_5","Class_6","Class_7","Class_8","Class_9"]
+		writer.writerow(labels)
+		for i in range(labs.shape[0]):
+			l = (one_hot(i,labs[i]))
+			writer.writerow(l)
+
 
 
 
@@ -40,6 +55,17 @@ def prepare(file):
 	trainf, testf, validf =split_det(features)
 	trainl, testl, validl =split_det(labels)
 	return ((trainf,trainl), (testf,testl),(validf,validl))
+
+def full_train(file):
+	d = get_datas(file)
+	features = get_features(d)
+	labels= get_labels(d)
+	return features, labels
+
+def get_predict(file):
+	d = get_datas(file)
+	features = get_features(d)
+	return features
 
 def split_non_det(data):
 	"""TODO"""
