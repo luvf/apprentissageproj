@@ -1,11 +1,13 @@
 import numpy as np
 
-from read_data import *
+from  read_data import *
 
 from sklearn.metrics import log_loss
 
 
-file = "../../train.csv"
+
+
+file = "../train.csv"
 data = 	prepare(file)
 
 #data = full_train(file)
@@ -21,15 +23,15 @@ gnb = tree.DecisionTreeClassifier()
 
 
 from sklearn.neural_network import MLPClassifier
-gnb = MLPClassifier(solver='lbfgs', alpha=1e-5,  hidden_layer_sizes=(70,50, 30), random_state=1)
+gnb = MLPClassifier(solver='lbfgs', alpha=1e-5,  hidden_layer_sizes=(70, 50, 30), random_state=1)
 
 
+#gnb = nonML()
+#gnb = GaussianNB()
+gnb.fit(data[0][0], list(data[0][1]))
 
-
-gnb = GaussianNB()
-
-y_pred = gnb.fit(data[0][0], list(data[0][1])).predict(data[1][0])
-y_pred_proba = gnb.fit(data[0][0], list(data[0][1])).predict_proba(data[1][0])
+y_pred = gnb.predict(data[1][0])
+y_pred_proba = gnb.predict_proba(data[1][0])
 
 
 #### Random Forest
@@ -42,6 +44,9 @@ y_pred_proba = gnb.fit(data[0][0], list(data[0][1])).predict_proba(data[1][0])
 
 #y_pred = gnb.fit(data[0], list(data[1])).predict(pr)
 ####
+
+
+
 
 #write_output(y_pred)
 
@@ -80,3 +85,32 @@ y_true_temp = data[1][1]
 y_true = class_to_number(y_true_temp)
 print("Number of mislabeled points out of a total %d points : %d" % ( len(data[1][1]),(data[1][1] != y_pred).sum()))
 print(multiclass_log_loss(y_true,y_pred_proba))
+
+
+class nonML:
+	def __init__(self):
+		self.aa =0
+
+	def fit(self, data, labels):
+		self.data = data
+		self.labels = labels
+
+	def predict_el(self,el):#on peut faire plus pythonique
+		minn = 1000
+		for i in range(self.data.shape[0]):
+			tmp= np.abs(el-data).sum()
+			if tmp < minn:
+				ret = i
+				minn = tmp
+		return self.labels[ret]
+	
+
+	def predict(self, els):
+		ret= list()
+		for el in els:
+			ret.append(self.predict_el(el))
+		return ret
+
+
+
+
