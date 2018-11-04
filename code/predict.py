@@ -38,20 +38,33 @@ gnb = tree.DecisionTreeClassifier()
 ####
 
 
-#### MLP
-'''
+#### Multi-Layer Perceptron
+
 from sklearn.neural_network import MLPClassifier
-gnb = MLPClassifier(solver='lbfgs', alpha=1e-5,  hidden_layer_sizes=(70,50, 30), random_state=1)
+gnb = MLPClassifier(solver='sgd', activation = 'logistic', alpha=1e-5,  
+                    hidden_layer_sizes=(256,128,64), random_state=1,
+                    batch_size = 300, learning_rate = 'constant')
 
 #y_pred = gnb.fit(data[0][0], list(data[0][1])).predict(data[1][0])
 y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
-write_output_proba(y_pred_proba,"out_mlp.csv")
+write_output_proba(y_pred_proba,"out_multi_layer.csv")
+
+####
+
+#### Gradient Boost
+'''
+from sklearn import svm, datasets
+from sklearn.ensemble import GradientBoostingClassifier
+gnb = GradientBoostingClassifier(loss = 'deviance', n_estimators=200, 
+                                 subsample= 0.9)
+
+y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
+write_output_proba(y_pred_proba,"out_gradientboost.csv")
 '''
 ####
 
-
 #### Random Forest
-
+'''
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_classification
 
@@ -61,7 +74,7 @@ rndf = RandomForestClassifier(n_estimators=100, max_depth=100,random_state=0)
 y_pred_proba = rndf.fit(data[0], list(data[1])).predict_proba(pr)
 
 write_output_proba(y_pred_proba,"out_forest.csv")
-
+'''
 ####
 
 
@@ -69,7 +82,7 @@ write_output_proba(y_pred_proba,"out_forest.csv")
 '''
 from sklearn.neighbors import KNeighborsClassifier
 
-gnb = KNeighborsClassifier(n_neighbors=9, weights='distance',algorithm = 'auto', p=2)
+gnb = KNeighborsClassifier(n_neighbors=50, weights='distance',algorithm = 'auto', p=2)
 #y_pred = gnb.fit(data[0], list(data[1])).predict(pr)
 y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
 write_output_proba(y_pred_proba,"out_knn.csv")
