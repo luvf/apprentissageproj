@@ -6,44 +6,79 @@ from sklearn.metrics import log_loss
 
 
 file = "../../train.csv"
-data = 	prepare(file)
+#data = 	prepare(file)
 
-#data = full_train(file)
-#pr= get_predict("../test.csv")
+data = full_train(file)
+pr= get_predict("../../test.csv")
 
+#### Naive Bayes
+'''
 from sklearn.naive_bayes import GaussianNB
+
 gnb = GaussianNB()
+y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
+write_output_proba(y_pred_proba,"out_gauss_bayes.csv")
+'''
+#### 
+
+
+#### SVC
+'''
 from sklearn.svm import SVC
 gnb = SVC(gamma='auto')
+'''
+#### 
 
+
+#### Decision Tree
+'''
 from sklearn import tree
 gnb = tree.DecisionTreeClassifier()
+'''
+####
 
 
+#### MLP
+'''
 from sklearn.neural_network import MLPClassifier
 gnb = MLPClassifier(solver='lbfgs', alpha=1e-5,  hidden_layer_sizes=(70,50, 30), random_state=1)
 
-
-
-
-gnb = GaussianNB()
-
-y_pred = gnb.fit(data[0][0], list(data[0][1])).predict(data[1][0])
-y_pred_proba = gnb.fit(data[0][0], list(data[0][1])).predict_proba(data[1][0])
+#y_pred = gnb.fit(data[0][0], list(data[0][1])).predict(data[1][0])
+y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
+write_output_proba(y_pred_proba,"out_mlp.csv")
+'''
+####
 
 
 #### Random Forest
-#from sklearn.ensemble import RandomForestClassifier
-#from sklearn.datasets import make_classification
 
-#rndf = RandomForestClassifier(n_estimators=100, max_depth=20,random_state=0)
-#y_pred = rndf.fit(data[0][0], list(data[0][1])).predict(data[1][0])
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_classification
 
+rndf = RandomForestClassifier(n_estimators=100, max_depth=100,random_state=0)
+#y_pred = rndf.fit(data[0], list(data[1])).predict(pr)
 
-#y_pred = gnb.fit(data[0], list(data[1])).predict(pr)
+y_pred_proba = rndf.fit(data[0], list(data[1])).predict_proba(pr)
+
+write_output_proba(y_pred_proba,"out_forest.csv")
+
 ####
 
-#write_output(y_pred)
+
+#### KNN
+'''
+from sklearn.neighbors import KNeighborsClassifier
+
+gnb = KNeighborsClassifier(n_neighbors=9, weights='distance',algorithm = 'auto', p=2)
+#y_pred = gnb.fit(data[0], list(data[1])).predict(pr)
+y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
+write_output_proba(y_pred_proba,"out_knn.csv")
+'''
+####
+
+
+
+#write_output(y_pred_proba)
 
 
 score = (data[1][1] != y_pred).sum()
