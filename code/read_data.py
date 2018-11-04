@@ -37,6 +37,16 @@ def write_output(labs):
 			writer.writerow(l)
 
 
+def write_output_proba(labs,name):
+    with open(name, 'w', newline='') as f:
+        writer = csv.writer(f)
+        labels =["id","Class_1","Class_2","Class_3","Class_4","Class_5","Class_6","Class_7","Class_8","Class_9"]
+        writer.writerow(labels)
+        l= []
+        for i in range(labs.shape[0]):
+            l = [i+1]
+            l.extend(list(labs[i]))
+            writer.writerow(l)
 
 
 def split_det(data):
