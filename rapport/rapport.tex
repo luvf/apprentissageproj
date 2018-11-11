@@ -1,0 +1,97 @@
+%++++++++++++++++++++++++++++++++++++++++
+% Don't modify this section unless you know what you're doing!
+\documentclass[twocolumn,10pt]{article}
+\usepackage{tabularx} % extra features for tabular environment
+\usepackage{amsmath}  % improve math presentation
+\usepackage{graphicx} % takes care of graphic including machinery
+\usepackage[margin=1in,letterpaper]{geometry} % decreases margins
+\usepackage{cite} % takes care of citations
+\usepackage[final]{hyperref} % adds hyper links inside the generated pdf file
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\hypersetup{
+	colorlinks=true,       % false: boxed links; true: colored links
+	linkcolor=blue,        % color of internal links
+	citecolor=blue,        % color of links to bibliography
+	filecolor=magenta,     % color of file links
+	urlcolor=blue         
+}
+%++++++++++++++++++++++++++++++++++++++++
+
+
+\begin{document}
+
+\title{Projet Apprentissage}
+\author{Luca Veyrin-Forrer, Yani Ziani, Antoine de Scorraille\\
+git: \url{git@github.com:luvf/apprentissageproj.git}}
+\date{\today}
+\maketitle
+
+
+\section{Le problème}
+
+    Nous nous sommes intéressés au challenge Kaggle de classification du groupe Otto. L'objectif était, à partir de 93 caractéristiques abstraites, de classifier les produit dans une des 9 catégories. Ces descripteurs sont uniquement des entiers, nous n'avons aucune information sur ce qu'ils représentaient réellement.\\ 
+    Kaggle utilise la log loss comme métrique d'évaluation des solutions. Et non pas la précision. Une telle méthode d'évaluation permet de ne pas trop pénaliser une solution qui "admet" ne pas être sûre de la classe de certains éléments.\\
+    Pour les premiers tests de nos modèles nous avons travaillé en local, en séparant notre base de donnée d'apprentissage entre entrainement et test, et en utilisant la même métrique que sur Kaggle (log-loss), mais aussi celle du taux d'erreur. Avec celle-ci nous avons remarqué que nos meilleurs modèles ne faisaient pas beaucoup mieux que 20\% d'erreur.\\
+    L'implémentation des modèles ici utilisés viennent de la bibliothèque Python scikit-learn, nous avons aussi utilisé la bibliothèque Mlxtend pour le modèle StackingClassifier, ainsi que xgboost pour le classifier XGBoost.
+    
+\section{Les Modèles}
+    Durant ce projet nous avons d'abord testé différents modèles de base (Bayésien naïf, arbres de décision et SVC), puis nous avons continué avec des modèles plus poussés tels que dont K-NN et le Perceptron multi-couches, pour finalement restreindre notre étude aux Random Forest, Gradient Boost et à des ensembles de modèles, qui donnaient généralement de meilleurs résultats, aussi bien localement que sur Kaggle.\\
+    Nous avons également essayé la réduction de la dimensionnalité par Analyse en Composante Principales. 
+    
+    \subsection{Perceptron multi couches}
+        Bien que ce soit un modèle très puissant et qui nous a donné de bons résultats, il fut difficile de l'optimiser du fait du grand nombre de paramètres, le nombre et la taille des couches, la méthode d'aprentissage, la fonction d'activation. Ainsi que son temps d'aprentissage long. Nous ne sommes donc pas certains d'avoir pu en obtenir le maximum. Cependant nous le réutiliserons dans les méta modèles utilsiés par la suite. 
+    
+    \subsection{Random Forest}
+    Nous avons d'abord commencé à utiliser ce modèle sans traitement en amont des données, en modifiant uniquement les paramètres controlant le nombre d'estimateurs utilisés, le critère de génération des arbres et leur profondeur maximale, ce qui nous a permis de descendre jusqu'à un score Kaggle d'environ 0.55, qui n'évoluait plus au-délà de 800 estimateurs, avec le critère gini.
+    De la même manière, nous avons pu obtenir un score de 0.51 en effectuant la calibration des données.
+    
+    \subsection{Gradient Boost}
+    Pour ce qui est du Gradient Boost, en travaillant de la même manière sur les paramètres, nous avons pu descendre jusqu'à un score Kaggle de 0.49. Nous avons également essayé d'utiliser le XGBoostClassifier (du package XGBoost), mais les résultats se sont présentés moins bons.
+    
+    \subsection{Ensemble Méthodes}
+        En observant les résultats des prédictions nous avons décidé d'utiliser des métamodèles qui combinent plusieurs modèles. Effectivement, il arrive souvent que plusieurs modèles différents soient d'accords avec haute probabilité, mais il arrive aussi que sur certains éléments à classifier ils diffèrent grandement, et que certains affichent une probabilité de certitude relativement faible pour la classe correcte. Ces méthodes permettent de tirer profit de ces d'incertitudes. Nous avons particulièrement exploré deux de ces modèles : VotingClassifier et StackingClassifier.
+        \paragraph{Le Voting Classifier:} Ce modèle effectue une moyenne non pondérée de différent modèles. Ici, nous avons utilisé un gradient boost, une random forest et deux perceptron multicouches. Ce modèle permettra d'améliorer les cas où l'un des modèles utilisés se trompe ou affiche une faible certitude, par rapport aux autres. 
+        Avec ce modèle nous avons pu obtenir des scores kaggle de 0.49.
+        
+        \paragraph{Le Stacking Classifier:} Comme le modèle précédent celui ci donne sa prédiction à de d'autres modèles. Cependant il pondère son résultat, ceci en ayant appris les poids à appliquer avec ici une régression logistique. L'apprentissage des poids à appliquer peut être effectué avec l'élément à classifier, ou uniquement avec les prédictions des autres algorithmes. Cependant même si ce modèle pourrait être plus puissant que le précédent, nous n'avons pas réussi à obtenir de meilleurs résultats.
+
+        Bien que ces modèles aient la capacité de donner de meilleurs résultat, en multipliant le nombre de modèles, et en les empilants, le temps d'aprentissage augmente fortement. Ceci a rendu difficile l'ajustement des hyperparamètres.
+        
+        De plus lorsque tous les modèles ne sont pas de qualité équivalente, obtenir un meilleur résultat n'est pas forcément garanti, notamment dans le Voting Classifier, où le ou les moins bons modèles vont faire décroître la certitude du modèle général sur des éléments "simples".
+        
+        Nous avons aussi brièvement essayé les Classifier de type Bagging classifier. Là encore l'empilement de différents modèles et le peu de temps à notre disposition ne nous a pas permis de tirer de bon résultats de ce méta-modèle.
+        
+       
+        
+\section{Résultats et conclusion.}
+    Le tableau suivant présente un récapitulatif des meilleurs résultats que nous avons obtenu avec chacune des méthodes évoquées :
+    \\
+    
+\begin{center}
+\begin{tabular}{|l|l|}
+    \hline
+    Modèle &  Score \tabularnewline
+    \hline
+    Arbres de décisions & ~10  \tabularnewline
+    \hline
+    K-NN & 0.73  \tabularnewline
+    \hline
+    SVC & 0.57  \tabularnewline
+    \hline
+    Perceptron multicouche & 0.51  \tabularnewline
+    \hline
+    Random Forest & 0.51  \tabularnewline
+    \hline
+    Gradient Boost & 0.49  \tabularnewline
+    \hline
+    Voting Classifier & 0.48  \tabularnewline
+    \hline
+    Stacking Classifier & 0.58   \tabularnewline
+    \hline
+ \end{tabular}
+ \end{center}
+
+En conclusion, si nous arrivons à obtenir des log-loss relativement basses, nous aurions souhaité poursuivre encore plus loin notre travail, par exemple en continuant d'explorer les pistes du stacking ou des ensembles de modèles de manière générale, Pour cela nous aurions du essayer d'apprendre une base de test plus petite pour pouvoir tester plus d'hyper parametres différents. Ou en créant des caractéristiques additionnelles par agrégation des caractéristiques déjà exitantes dans le jeu de données.
+
+\end{document}

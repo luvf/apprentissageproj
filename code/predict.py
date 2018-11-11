@@ -116,7 +116,7 @@ def train_test(model):
 	return model, y_pred, y_pred_proba, y_true
 
 
-mod = Voting()
+#mod = Voting()
 #model, pred_prob = train_fullset(mod, "out.csv")
-model, pred, probs, t =train_test(mod)
+#model, pred, probs, t =train_test(mod)
 
