@@ -8,28 +8,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.ensemble import BaggingClassifier
 
-<<<<<<< HEAD
-=======
-file = "../../train.csv"
-#data = 	prepare(file)
-
-data = full_train(file)
-pr= get_predict("../../test.csv")
-
-###Principal composent analysis
-from sklearn.decomposition import PCA
-pca = PCA(n_components=50)
-def reducted_train(file):
-    d= get_datas(file)
-    features = get_features(d)
-    new_features = pca.fit_transform(features)
-    return new_features
-rdata = reducted_train(file)
-
-#### Naive Bayes
-'''
-from sklearn.naive_bayes import GaussianNB
->>>>>>> b9b9474c298f6600872bd9e073e0ae10c755214b
 
 from sklearn.datasets import make_classification
 from sklearn.naive_bayes import MultinomialNB
@@ -40,28 +18,29 @@ from sklearn import tree
 from sklearn.neural_network import MLPClassifier
 
 from sklearn.svm import SVC
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier #not used
 from sklearn.linear_model import LogisticRegression
 
-from sklearn.preprocessing import StandardScaler
-from mlxtend.classifier import StackingClassifier,StackingCVClassifier
+from mlxtend.classifier import StackingClassifier
 
-import xgboost as xgb
+
+# import xgboost as xgb #optional
+
+
 file = "../train.csv"
+testfile = "../test.csv"
 
 
 
-
-svc = (lambda: SVC(gamma='auto'))
-# relativement lent, score 0.571
-
+Svc = (lambda: SVC(gamma='auto'))# relativement lent, score 0.571
 MLP = (lambda : MLPClassifier(solver='adam', activation ='relu', max_iter = 300, hidden_layer_sizes=(70)))
 MLP2 = (lambda : MLPClassifier(solver='adam', activation ='logistic', max_iter = 300, hidden_layer_sizes=(65,40)))
-
 RandomForest = (lambda : RandomForestClassifier(n_estimators=300, max_depth=150,random_state=0))
 GradientBoost = (lambda : GradientBoostingClassifier(loss = 'deviance', n_estimators=800,  subsample= 0.9, criterion = "friedman_mse"))
-#Knlambda = (lambda : KNeighborsClassifier(n_neighbors=100, weights='distance',algorithm = 'auto', p=2))
+Knlambda = (lambda : KNeighborsClassifier(n_neighbors=100, weights='distance',algorithm = 'auto', p=2))
 logistic = (lambda : LogisticRegression(solver='newton-cg', multi_class='multinomial'))
+
+# Xgb= (lambda : xgb.XGBClassifier(n_estimators=100,max_depth=80)) #optional
 
 def create(x, l):
 	"""not used with bagging  classifier"""
@@ -102,16 +81,22 @@ def Voting():
 	return VotingClassifier(estimators , voting='soft')
 
 
-
-def train_fullset(model,outfile):
-	data = full_train(file)
-	pr = get_predict("../test.csv")
-	print("donnés chargés")
-	model.fit(data[0], list(data[1]))
-	print("modele apris")
+def predict(model, outfile):
+	""" sert donner les prédictions sur un modele deja entrainé"""
+	pr = get_predict(testfile)
 	y_pred_proba = model.predict_proba(pr)
 	write_output_proba(y_pred_proba, outfile)
 	return model, y_pred_proba
+
+
+def train_fullset(model,outfile):
+	data = full_train(file)
+	print("donnés chargés")
+	model.fit(data[0], list(data[1]))
+	print("modele apris")
+	return predict(model, outfile)
+
+
 
 def train_test(model):
 	data = prepare(file)
@@ -131,7 +116,7 @@ def train_test(model):
 	return model, y_pred, y_pred_proba, y_true
 
 
-model = Voting()
-model, pred_prob = train_fullset(gnb, "dontstopmenow.csv")
-model, pred, probs, t =train_test(gnb)
+mod = Voting()
+#model, pred_prob = train_fullset(mod, "out.csv")
+model, pred, probs, t =train_test(mod)
 
