@@ -12,9 +12,9 @@ data = full_train(file)
 pr= get_predict("../../test.csv")
 
 #### Naive Bayes
-'''
-from sklearn.naive_bayes import GaussianNB
 
+from sklearn.naive_bayes import GaussianNB
+'''
 gnb = GaussianNB()
 y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
 write_output_proba(y_pred_proba,"out_gauss_bayes.csv")
@@ -25,15 +25,19 @@ write_output_proba(y_pred_proba,"out_gauss_bayes.csv")
 #### SVC
 '''
 from sklearn.svm import SVC
-gnb = SVC(gamma='auto')
+gnb = SVC(C = 1.0, kernel = 'rbf', degree = 3, gamma='auto', shrinking = False, probability = True)
+y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
+write_output_proba(y_pred_proba,"out_SVC.csv")
 '''
 #### 
 
 
 #### Decision Tree
 '''
-from sklearn import tree
-gnb = tree.DecisionTreeClassifier()
+from sklearn.tree import DecisionTreeClassifier
+gnb = DecisionTreeClassifier(criterion = 'entropy', splitter = "best", presort = True)
+y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
+write_output_proba(y_pred_proba,"out_tree.csv")
 '''
 ####
 
@@ -41,15 +45,30 @@ gnb = tree.DecisionTreeClassifier()
 #### Multi-Layer Perceptron
 '''
 from sklearn.neural_network import MLPClassifier
-gnb = MLPClassifier(solver='sgd', activation = 'logistic', alpha=1e-5,  
-                    hidden_layer_sizes=(256,128,64), random_state=1,
-                    batch_size = 300, learning_rate = 'constant')
+gnb = MLPClassifier(solver='sgd', activation = 'logistic', alpha=1e-4,  
+                    hidden_layer_sizes=(75), random_state=1,
+                    batch_size = 'auto', learning_rate = 'constant',
+                    n_iter_no_change = 10, learning_rate_init = 0.005)
 
 #y_pred = gnb.fit(data[0][0], list(data[0][1])).predict(data[1][0])
 y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
 write_output_proba(y_pred_proba,"out_multi_layer.csv")
 '''
 ####
+
+#### XGBoost
+
+import xgboost as xgb
+gnb = xgb.XGBClassifier(n_estimators=300, max_depth=150, learning_rate=0.1, 
+                        objective='binary:logistic', booster='gbtree', 
+                        silent=False)
+
+#y_pred = gnb.fit(data[0][0], list(data[0][1])).predict(data[1][0])
+y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
+write_output_proba(y_pred_proba,"out_XGBoost.csv")
+
+####
+
 
 #### Gradient Boost
 '''
@@ -64,17 +83,18 @@ write_output_proba(y_pred_proba,"out_gradientboost.csv")
 ####
 
 #### Random Forest
-
+'''
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_classification
+from sklearn.calibration import CalibratedClassifierCV
 
-rndf = RandomForestClassifier(n_estimators=1500, max_depth=150,random_state=0)
+rndf = CalibratedClassifierCV(RandomForestClassifier(n_estimators=800, max_depth=100, criterion = "gini",random_state=0, verbose = 1))
 #y_pred = rndf.fit(data[0], list(data[1])).predict(pr)
 
 y_pred_proba = rndf.fit(data[0], list(data[1])).predict_proba(pr)
 
 write_output_proba(y_pred_proba,"out_forest.csv")
-
+'''
 ####
 
 
@@ -82,7 +102,7 @@ write_output_proba(y_pred_proba,"out_forest.csv")
 '''
 from sklearn.neighbors import KNeighborsClassifier
 
-gnb = KNeighborsClassifier(n_neighbors=50, weights='distance',algorithm = 'auto', p=2)
+gnb = KNeighborsClassifier(n_neighbors=128, algorithm = 'auto', p=2)
 #y_pred = gnb.fit(data[0], list(data[1])).predict(pr)
 y_pred_proba = gnb.fit(data[0], list(data[1])).predict_proba(pr)
 write_output_proba(y_pred_proba,"out_knn.csv")
