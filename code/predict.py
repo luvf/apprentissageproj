@@ -8,6 +8,28 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.ensemble import BaggingClassifier
 
+<<<<<<< HEAD
+=======
+file = "../../train.csv"
+#data = 	prepare(file)
+
+data = full_train(file)
+pr= get_predict("../../test.csv")
+
+###Principal composent analysis
+from sklearn.decomposition import PCA
+pca = PCA(n_components=50)
+def reducted_train(file):
+    d= get_datas(file)
+    features = get_features(d)
+    new_features = pca.fit_transform(features)
+    return new_features
+rdata = reducted_train(file)
+
+#### Naive Bayes
+'''
+from sklearn.naive_bayes import GaussianNB
+>>>>>>> b9b9474c298f6600872bd9e073e0ae10c755214b
 
 from sklearn.datasets import make_classification
 from sklearn.naive_bayes import MultinomialNB
