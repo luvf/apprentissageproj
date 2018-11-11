@@ -37,23 +37,36 @@ def write_output(labs):
 			writer.writerow(l)
 
 
+def write_output_proba(labs,name):
+    with open(name, 'w', newline='') as f:
+        writer = csv.writer(f)
+        labels =["id","Class_1","Class_2","Class_3","Class_4","Class_5","Class_6","Class_7","Class_8","Class_9"]
+        writer.writerow(labels)
+        l= []
+        for i in range(labs.shape[0]):
+            l = [i+1]
+            l.extend(list(labs[i]))
+            writer.writerow(l)
 
 
 def split_det(data):
 	l = len(data)//10
 	train = data[0:l*8]
 	test = data[l*8: l*9]
-	valid = data[l*9]
+	valid = data[l*9:]
 	return train, test, valid
 
-
+from sklearn.preprocessing import normalize
 def prepare(file):
 	d = get_datas(file)
 	np.random.shuffle(d)
 	features = get_features(d)
-	labels= get_labels(d)
-	trainf, testf, validf =split_det(features)
-	trainl, testl, validl =split_det(labels)
+	labels = get_labels(d)
+	trainf, testf, validf = split_det(features)
+	#trainf= normalize(trainf, axis=1)
+	#testf = normalize(testf, axis=1)
+	#validf= normalize(validf, axis=1)
+	trainl, testl, validl = split_det(labels)
 	return ((trainf,trainl), (testf,testl),(validf,validl))
 
 def full_train(file):
